@@ -27,4 +27,5 @@ export const NEWS_DATA = {
     },
   ],
   count: 2,
+  ticker: "IBM",
 };

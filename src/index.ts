@@ -7,7 +7,7 @@ async function main() {
   const encryptionKey = "secret";
   const encryptor = new Encryptor(encryptionKey);
 
-  const { articles } = NEWS_DATA;
+  const { articles, ticker } = NEWS_DATA;
 
   let newArticles: any = [];
 
@@ -16,11 +16,16 @@ async function main() {
     const createdHash = encryptor.encrypt(title.replace(" ", ""));
 
     const { data } = await equestApi.getNewsRecordByHash(createdHash);
-    const newRecord = { ...article, hash: createdHash, timestamp: undefined };
+    const newRecord = {
+      ...article,
+      hash: createdHash,
+      timestamp: undefined,
+      ticker,
+    };
 
     if (!data) newArticles.push(newRecord);
   }
-
+  console.log("🚀 ~ file: index.ts:27 ~ main ~ newArticles:", newArticles);
   const { data: recordsInserted } = await equestApi.uploadNewsRecords({
     articles: newArticles,
     count: newArticles.length,
