@@ -2,9 +2,17 @@ import { EquestApi } from "./equest";
 
 async function main() {
   const equestApi = new EquestApi();
-  const { data } = await equestApi.findNewsRecordByHash("testhash123");
+  // let newRecordByHash = await equestApi.getNewsRecordByHash("testhash123");
+  // console.log("findNewsRecordByHash", newRecordByHash.data);
 
-  console.log(data);
+  // const alphavNews = await equestApi.getAlphavNews("ibm");
+  // console.log("getAlphavNews", alphavNews.data);
+
+  // const marketauxNews = await equestApi.getMarketauxNews("ibm");
+  // console.log("getMarketauxNews", marketauxNews.data);
+
+  // const everythingNews = await equestApi.getNewsEverything("ibm");
+  // console.log("getNewsEverything", everythingNews.data);
 }
 
 main();
