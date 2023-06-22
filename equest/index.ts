@@ -5,8 +5,11 @@ const envObject = env.config().parsed as any;
 const { EQUEST_API_KEY } = envObject;
 
 const endpoint = {
-  newsRecord: "news-record",
-  newsRecordUpload: "news-record/upload",
+  newsRecord: "equest/news-record",
+  newsRecordUpload: "equest/news-record/upload",
+  newsEverything: "news/everything",
+  alphavNews: "alphav/news",
+  marketauxNews: "marketaux/news",
 };
 
 export class EquestApi {
@@ -16,7 +19,7 @@ export class EquestApi {
 
   constructor() {
     console.log("EQUEST API READY");
-    this.baseURL = "http://localhost:3001/equest/";
+    this.baseURL = "http://localhost:3001/";
     this.axiosInstance = Axios.create({
       baseURL: this.baseURL,
       headers: {
@@ -26,18 +29,30 @@ export class EquestApi {
       },
     });
   }
-
-  async findNewsRecordByHash(hash: string) {
-    const recordsFound = this.axiosInstance.get(
-      `${endpoint.newsRecord}/${hash}`
-    );
-    return recordsFound;
+  async getNewsRecordByHash(hash: string) {
+    return await this.axiosInstance.get(`${endpoint.newsRecord}/${hash}`);
   }
   async uploadNewsRecords(newsRecords: any) {
-    const uploadedRecords = this.axiosInstance.post(
+    return await this.axiosInstance.post(
       `${endpoint.newsRecordUpload}/`,
       newsRecords
     );
-    return uploadedRecords;
+  }
+
+  // News Endpoints
+  async getAlphavNews(ticker: string) {
+    return await this.axiosInstance.get(`${endpoint.alphavNews}/`, {
+      params: { ticker },
+    });
+  }
+  async getMarketauxNews(ticker: string) {
+    return await this.axiosInstance.get(`${endpoint.marketauxNews}/`, {
+      params: { ticker },
+    });
+  }
+  async getNewsEverything(ticker: string) {
+    return await this.axiosInstance.get(`${endpoint.newsEverything}/`, {
+      params: { ticker },
+    });
   }
 }
