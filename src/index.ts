@@ -1,7 +1,8 @@
-import { EquestApi } from "./equest";
+import { EquestApi } from "../equest";
 
 async function main() {
   const equestApi = new EquestApi();
+
   // let newRecordByHash = await equestApi.getNewsRecordByHash("testhash123");
   // console.log("findNewsRecordByHash", newRecordByHash.data);
 
