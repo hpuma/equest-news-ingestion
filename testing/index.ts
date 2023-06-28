@@ -1,5 +1,5 @@
-import { EquestApi } from "../equest";
-import { Encryptor } from "../encryptor";
+import { EquestApi } from "../equest-api.class";
+import { Encryptor } from "../encryptor.class";
 
 async function main() {
   const equestApi = new EquestApi();
