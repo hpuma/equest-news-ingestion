@@ -1,4 +1,4 @@
-import { EquestApi } from "./apis/equest.class";
+import { EquestApi } from "./equest.class";
 import { Encryptor } from "./utils/encryptor.class";
 import { NEWS_DATA } from "./utils/data";
 
@@ -8,9 +8,9 @@ export class NewsProcessor {
   data: typeof NEWS_DATA;
   newArticles: any[] = [];
 
-  constructor(data: any, encryptionKey: string) {
+  constructor(equestApi: EquestApi, data: any, encryptionKey: string) {
     this.data = data;
-    this.equestApi = new EquestApi();
+    this.equestApi = equestApi;
     this.encryptor = new Encryptor(encryptionKey);
   }
   async processArticles() {
