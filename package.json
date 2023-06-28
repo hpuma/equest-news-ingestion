@@ -5,7 +5,7 @@
     "dotenv": "^16.3.1"
   },
   "scripts": {
-    "start": "ts-node ./src",
+    "start": "ts-node ./main",
     "test": "ts-node ./testing"
   },
   "devDependencies": {
