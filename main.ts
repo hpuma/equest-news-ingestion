@@ -1,4 +1,4 @@
-import { NEWS_DATA } from "./data";
+import { NEWS_DATA } from "./utils/data";
 import { NewsProcessor } from "./news-processor.class";
 
 async function main() {
