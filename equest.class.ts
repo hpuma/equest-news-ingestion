@@ -3,19 +3,28 @@ import * as env from "dotenv";
 
 const envObject = env.config().parsed as any;
 const { EQUEST_API_KEY } = envObject;
-
-const endpoint = {
+type Endpoint = {
+  [key: string]: string;
+};
+export const endpoint: Endpoint = {
+  alphav: "alphav/news",
+  marketaux: "marketaux/news",
+  news: "news/everything",
   newsRecord: "equest/news-record",
   newsRecordUpload: "equest/news-record/upload",
-  newsEverything: "news/everything",
-  alphavNews: "alphav/news",
-  marketauxNews: "marketaux/news",
+};
+
+const endpointName: Endpoint = {
+  alphav: "Alphav",
+  marketaux: "Marketaux",
+  news: "News",
 };
 
 export class EquestApi {
   private baseURL: string;
   private apiKey: string = EQUEST_API_KEY;
   private axiosInstance: AxiosInstance;
+  private startTime: any;
 
   constructor() {
     console.log("EquestApi READY");
@@ -29,6 +38,8 @@ export class EquestApi {
       },
     });
   }
+
+  // Search recprd by hash and upload records
   async getNewsRecordByHash(hash: string) {
     return await this.axiosInstance.get(`${endpoint.newsRecord}/${hash}`);
   }
@@ -39,20 +50,25 @@ export class EquestApi {
     );
   }
 
-  // News Endpoints
-  async getAlphavNews(ticker: string) {
-    return await this.axiosInstance.get(`${endpoint.alphavNews}/`, {
-      params: { ticker },
-    });
+  // Use timer
+  setTimer() {
+    this.startTime = Date.now();
   }
-  async getMarketauxNews(ticker: string) {
-    return await this.axiosInstance.get(`${endpoint.marketauxNews}/`, {
-      params: { ticker },
-    });
+  printTimer(source: string) {
+    let timeTaken = Date.now() - this.startTime;
+    console.log(`${source}: ${timeTaken} ms`);
   }
-  async getNewsEverything(ticker: string) {
-    return await this.axiosInstance.get(`${endpoint.newsEverything}/`, {
+
+  // Get news
+  async getNewsFromSource(source: string, ticker: string) {
+    this.setTimer();
+    const endpointPath = endpoint[source];
+    const sourceName = endpointName[source];
+
+    const { data } = await this.axiosInstance.get(endpointPath, {
       params: { ticker },
     });
+    this.printTimer(sourceName);
+    return data;
   }
 }
