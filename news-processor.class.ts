@@ -14,6 +14,10 @@ export class NewsProcessor {
     this.encryptor = new Encryptor(encryptionKey);
   }
   async processArticles() {
+    if (!this.data.articles.length) {
+      console.log("Articles PROCESSED: 0");
+      return;
+    }
     const { articles, ticker } = this.data;
 
     for (const article of articles) {
@@ -29,14 +33,20 @@ export class NewsProcessor {
           ticker,
         });
     }
-    console.log("Articles PROCESSED: ", this.newArticles.length);
+    console.log(`Articles PROCESSED: ${this.newArticles.length}`);
   }
   async uploadNewsRecords() {
+    if (!this.newArticles.length) {
+      console.log("Records UPLOADED: 0");
+      return;
+    }
+
     const { data } = await this.equestApi.uploadNewsRecords({
       articles: this.newArticles,
       count: this.newArticles.length,
     });
-    console.log("Records UPLOADED:");
+
+    console.log(`Records UPLOADED: ${data.insertedCount}`);
     console.table(data);
   }
 }

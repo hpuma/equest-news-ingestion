@@ -18,7 +18,7 @@ export class EquestApi {
   private axiosInstance: AxiosInstance;
 
   constructor() {
-    console.log("EQUEST API READY");
+    console.log("EquestApi READY");
     this.baseURL = "http://localhost:3001/";
     this.axiosInstance = Axios.create({
       baseURL: this.baseURL,
