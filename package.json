@@ -6,7 +6,7 @@
   },
   "scripts": {
     "start": "ts-node ./main",
-    "test": "ts-node ./testing"
+    "test": "ts-node ./utils/testing"
   },
   "devDependencies": {
     "@types/node": "^20.3.1"
