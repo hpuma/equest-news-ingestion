@@ -1,5 +1,5 @@
 import { EquestApi } from "./apis/equest.class";
-import { Encryptor } from "./encryptor.class";
+import { Encryptor } from "./utils/encryptor.class";
 import { NEWS_DATA } from "./utils/data";
 
 export class NewsProcessor {
