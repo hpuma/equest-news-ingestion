@@ -1,4 +1,4 @@
-import { EquestApi } from "./equest-api.class";
+import { EquestApi } from "./apis/equest.class";
 import { Encryptor } from "./encryptor.class";
 import { NEWS_DATA } from "./utils/data";
 
