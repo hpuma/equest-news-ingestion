@@ -13,44 +13,26 @@ async function main() {
     equestApi.getNewsFromSource("news", ticker),
   ]);
 
+  const totalArticlesDownloaded =
+    alpahvResponse.articles.length ??
+    0 + marketauxResponse.articles.length ??
+    0 + newsResponse.articles.lengt ??
+    0;
+
+  console.log(`🚀 TotalArticles => DOWNLOADED => ${totalArticlesDownloaded}`);
+
   const newsProcessor = new NewsProcessor(
     equestApi,
     {
-      alpahvResponse: NEWS_DATA,
-      marketauxResponse: NEWS_DATA,
-      newsResponse: NEWS_DATA,
+      alpahvResponse,
+      marketauxResponse,
+      newsResponse,
     },
     encryptionKey
   );
+
   await newsProcessor.processArticles();
-
-  // const alphavProcessor = new NewsProcessor(
-  //   equestApi,
-  //   alpahvResponse,
-  //   encryptionKey
-  // );
-  // const marketauxProcessor = new NewsProcessor(
-  //   equestApi,
-  //   marketauxResponse,
-  //   encryptionKey
-  // );
-  // const newsProcessor = new NewsProcessor(
-  //   equestApi,
-  //   newsResponse,
-  //   encryptionKey
-  // );
-
-  // await Promise.all([
-  //   alphavProcessor.processArticles(),
-  //   newsProcessor.processArticles(),
-  //   newsProcessor.processArticles(),
-  // ]);
-
-  // await Promise.all([
-  //   alphavProcessor.uploadNewsRecords(),
-  //   marketauxProcessor.uploadNewsRecords(),
-  //   newsProcessor.uploadNewsRecords(),
-  // ]);
+  await newsProcessor.uploadNewsRecords();
 }
 
 main();

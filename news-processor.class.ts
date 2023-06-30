@@ -8,12 +8,12 @@ type Source = {
 export class NewsProcessor {
   private equestApi: EquestApi;
   private encryptor: Encryptor;
-
-  private newsSources: Source;
-  private newArticles: any[] = [];
-  private processedCount = 0;
-
   private startTime: any;
+  private globalStartTime: any;
+  private newsSources: Source;
+
+  private newArticles: any[] = [];
+  private static totalProcessed = 0;
 
   constructor(equestApi: EquestApi, data: any, encryptionKey: string) {
     this.newsSources = {
@@ -21,70 +21,86 @@ export class NewsProcessor {
       marketaux: data.marketauxResponse,
       news: data.newsResponse,
     };
-
     this.equestApi = equestApi;
     this.encryptor = new Encryptor(encryptionKey);
     this.newArticles = [];
   }
   async processArticles() {
+    this.startTimer(true);
     const allNewsSources = Object.keys(this.newsSources);
+    const unprocessedArticles: any[] = [];
 
-    allNewsSources.forEach(async (source) => {
-      await this.processArticlesBySource(source);
-    });
-
-    console.log(`PROCESSED ${this.newArticles.length} articles`);
+    allNewsSources.forEach((source) =>
+      unprocessedArticles.push(this.processArticlesBySource(source))
+    );
+    await Promise.all(unprocessedArticles).then(() =>
+      this.printTimer(
+        "TotalArticles",
+        "PROCESSED",
+        NewsProcessor.totalProcessed,
+        true
+      )
+    );
   }
 
-  async processArticlesBySource(source: string) {
+  async processArticlesBySource(newsSource: string) {
     this.startTimer();
-    this.processedCount = 0;
-    const dataSource = this.newsSources[source];
 
-    const { articles, ticker } = dataSource;
+    const { articles = [], ticker = "" } = this.newsSources[newsSource];
+    if (!articles.length)
+      return this.printTimer(newsSource, `${ticker} [EMPTY]`, 0);
 
+    let currentProcessed = 0;
     for (const article of articles) {
       const filteredText = article.title.replace(" ", "");
-      const createdHash = this.encryptor.encrypt(filteredText);
-      const { data } = await this.equestApi.getNewsRecordByHash(createdHash);
+      const hash = this.encryptor.encrypt(filteredText);
 
-      if (!data) {
-        this.newArticles.push({
-          ...article,
-          hash: createdHash,
-          timestamp: undefined,
-          ticker,
-        });
-        this.processedCount += 1;
-      }
+      const { data } = await this.equestApi.getNewsRecordByHash(hash);
+      if (data) continue;
+
+      this.newArticles.push({
+        ...article,
+        hash,
+        timestamp: undefined,
+        ticker,
+        newsSource,
+      });
+      NewsProcessor.totalProcessed += 1;
+      currentProcessed += 1;
     }
-
-    this.printTimer(source, `${ticker} PROCESSED`, this.processedCount);
+    this.printTimer(newsSource, `${ticker} PROCESSED`, currentProcessed);
   }
 
-  startTimer() {
-    this.startTime = Date.now();
+  startTimer(isGlobal = false) {
+    const time = Date.now();
+    const timeSource = isGlobal ? "globalStartTime" : "startTime";
+    this[timeSource] = time;
   }
-  printTimer(source: string = "", message: string = "", count: number = 0) {
-    let timeTaken = Date.now() - this.startTime;
+  printTimer(
+    source: string = "",
+    message: string = "",
+    count: number = 0,
+    isGlobal = false
+  ) {
+    const time = Date.now();
+    const startTime = isGlobal ? this.globalStartTime : this.startTime;
+    let timeTaken = time - startTime;
+
     console.log(`🚀 ${source} => ${message} => ${count}  ...${timeTaken}ms`);
   }
 
   async uploadNewsRecords() {
-    if (!this.newArticles.length) {
-      console.table({
-        acknowledged: false,
-        insertedCount: 0,
-        message: "No new articles",
-      });
-      return;
-    }
+    this.startTimer();
+    if (!this.newArticles.length)
+      return this.printTimer("TotalArticles", "UPLOADED", 0);
 
-    const { data } = await this.equestApi.uploadNewsRecords({
+    const {
+      data: { insertedCount = 0 },
+    } = await this.equestApi.uploadNewsRecords({
       articles: this.newArticles,
       count: this.newArticles.length,
     });
 
-    console.log(data);
+    this.printTimer("TotalArticles", "UPLOADED", insertedCount);
   }
 }

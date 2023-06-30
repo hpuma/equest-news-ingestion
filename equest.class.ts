@@ -21,7 +21,7 @@ export class EquestApi {
   private startTime: any;
 
   constructor() {
-    console.log("EquestApi READY");
+    console.log("✅ EquestApi READY");
     this.baseURL = "http://localhost:3001/";
     this.axiosInstance = Axios.create({
       baseURL: this.baseURL,
