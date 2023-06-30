@@ -1,8 +1,6 @@
-import { NEWS_DATA } from "./utils/data";
 import { NewsProcessor } from "./news-processor.class";
 import { EquestApi } from "./equest.class";
-import { endpoint } from "./equest.class";
-
+import { NEWS_DATA } from "./utils/data";
 async function main() {
   const encryptionKey = "secret";
 
@@ -14,41 +12,27 @@ async function main() {
     equestApi.getNewsFromSource("marketaux", ticker),
     equestApi.getNewsFromSource("news", ticker),
   ]);
-  printStats("alphav", alpahvResponse);
-  printStats("marketaux", marketauxResponse);
-  printStats("news", newsResponse);
 
-  const alphavProcessor = new NewsProcessor(
-    equestApi,
-    alpahvResponse,
-    encryptionKey
-  );
-  const marketauxProcessor = new NewsProcessor(
-    equestApi,
-    marketauxResponse,
-    encryptionKey
-  );
+  const totalArticlesDownloaded =
+    alpahvResponse.articles.length ??
+    0 + marketauxResponse.articles.length ??
+    0 + newsResponse.articles.lengt ??
+    0;
+
+  console.log(`🚀 TotalArticles => DOWNLOADED => ${totalArticlesDownloaded}`);
+
   const newsProcessor = new NewsProcessor(
     equestApi,
-    newsResponse,
+    {
+      alpahvResponse,
+      marketauxResponse,
+      newsResponse,
+    },
     encryptionKey
   );
 
-  await Promise.all([
-    alphavProcessor.processArticles(),
-    newsProcessor.processArticles(),
-    newsProcessor.processArticles(),
-  ]);
-
-  await Promise.all([
-    alphavProcessor.uploadNewsRecords(),
-    marketauxProcessor.uploadNewsRecords(),
-    newsProcessor.uploadNewsRecords(),
-  ]);
-}
-
-function printStats(source: string, data: any) {
-  console.log(source, Object.keys(data), `Count: ${data.count}`);
+  await newsProcessor.processArticles();
+  await newsProcessor.uploadNewsRecords();
 }
 
 main();
