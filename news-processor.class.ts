@@ -1,24 +1,47 @@
 import { EquestApi } from "./equest.class";
 import { Encryptor } from "./utils/encryptor.class";
 import { NEWS_DATA } from "./utils/data";
+type Source = {
+  [key: string]: typeof NEWS_DATA;
+};
 
 export class NewsProcessor {
   equestApi: EquestApi;
   encryptor: Encryptor;
-  data: typeof NEWS_DATA;
+
+  source: Source;
   newArticles: any[] = [];
+  private startTime: any;
 
   constructor(equestApi: EquestApi, data: any, encryptionKey: string) {
-    this.data = data;
+    this.source = {
+      alphav: data.alpahvResponse,
+      marketaux: data.marketauxResponse,
+      news: data.newsResponse,
+    };
     this.equestApi = equestApi;
     this.encryptor = new Encryptor(encryptionKey);
+    this.newArticles = [];
   }
   async processArticles() {
-    if (!this.data.articles.length) {
+    const allSources = Object.keys(this.source);
+    const processedArticles: any[] = [];
+    allSources.forEach((source) => {
+      processedArticles.push(this.processArticlesBySource(source));
+    });
+    await Promise.all(processedArticles);
+  }
+
+  async processArticlesBySource(source: string) {
+    this.startTimer();
+    const dataSource = this.source[source];
+
+    if (!dataSource.articles.length) {
       console.log("Articles PROCESSED: 0");
       return;
     }
-    const { articles, ticker } = this.data;
+
+    const { articles, ticker } = dataSource;
 
     for (const article of articles) {
       const filteredText = article.title.replace(" ", "");
@@ -33,11 +56,24 @@ export class NewsProcessor {
           ticker,
         });
     }
-    console.log(`Articles PROCESSED: ${this.newArticles.length}`);
+    this.printTimer(source, `${ticker} PROCESSED`, this.newArticles.length);
   }
+
+  startTimer() {
+    this.startTime = Date.now();
+  }
+  printTimer(source: string = "", message: string = "", count: number = 0) {
+    let timeTaken = Date.now() - this.startTime;
+    console.log(`${source} => ${message} => ${count}  ...${timeTaken} ms`);
+  }
+
   async uploadNewsRecords() {
     if (!this.newArticles.length) {
-      console.log("Records UPLOADED: 0");
+      console.table({
+        acknowledged: false,
+        insertedCount: 0,
+        message: "No new articles",
+      });
       return;
     }
 
@@ -46,7 +82,6 @@ export class NewsProcessor {
       count: this.newArticles.length,
     });
 
-    console.log(`Records UPLOADED: ${data.insertedCount}`);
-    console.table(data);
+    console.log(data);
   }
 }

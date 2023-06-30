@@ -14,12 +14,6 @@ export const endpoint: Endpoint = {
   newsRecordUpload: "equest/news-record/upload",
 };
 
-const endpointName: Endpoint = {
-  alphav: "Alphav",
-  marketaux: "Marketaux",
-  news: "News",
-};
-
 export class EquestApi {
   private baseURL: string;
   private apiKey: string = EQUEST_API_KEY;
@@ -54,21 +48,21 @@ export class EquestApi {
   setTimer() {
     this.startTime = Date.now();
   }
-  printTimer(source: string) {
+  printTimer(source: string, count: number, ticker: string) {
     let timeTaken = Date.now() - this.startTime;
-    console.log(`${source}: ${timeTaken} ms`);
+    console.log(`${source} => ${ticker} => ${count}  ...${timeTaken} ms`);
   }
 
   // Get news
-  async getNewsFromSource(source: string, ticker: string) {
+  async getNewsFromSource(endpointName: string, ticker: string) {
     this.setTimer();
-    const endpointPath = endpoint[source];
-    const sourceName = endpointName[source];
+    const endpointPath = endpoint[endpointName];
 
     const { data } = await this.axiosInstance.get(endpointPath, {
       params: { ticker },
     });
-    this.printTimer(sourceName);
+
+    this.printTimer(endpointName, data.count, data.ticker);
     return data;
   }
 }

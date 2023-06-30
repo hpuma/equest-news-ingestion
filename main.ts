@@ -14,41 +14,41 @@ async function main() {
     equestApi.getNewsFromSource("marketaux", ticker),
     equestApi.getNewsFromSource("news", ticker),
   ]);
-  printStats("alphav", alpahvResponse);
-  printStats("marketaux", marketauxResponse);
-  printStats("news", newsResponse);
 
-  const alphavProcessor = new NewsProcessor(
-    equestApi,
-    alpahvResponse,
-    encryptionKey
-  );
-  const marketauxProcessor = new NewsProcessor(
-    equestApi,
-    marketauxResponse,
-    encryptionKey
-  );
   const newsProcessor = new NewsProcessor(
     equestApi,
-    newsResponse,
+    { alpahvResponse, marketauxResponse, newsResponse },
     encryptionKey
   );
+  await newsProcessor.processArticles();
 
-  await Promise.all([
-    alphavProcessor.processArticles(),
-    newsProcessor.processArticles(),
-    newsProcessor.processArticles(),
-  ]);
+  // const alphavProcessor = new NewsProcessor(
+  //   equestApi,
+  //   alpahvResponse,
+  //   encryptionKey
+  // );
+  // const marketauxProcessor = new NewsProcessor(
+  //   equestApi,
+  //   marketauxResponse,
+  //   encryptionKey
+  // );
+  // const newsProcessor = new NewsProcessor(
+  //   equestApi,
+  //   newsResponse,
+  //   encryptionKey
+  // );
 
-  await Promise.all([
-    alphavProcessor.uploadNewsRecords(),
-    marketauxProcessor.uploadNewsRecords(),
-    newsProcessor.uploadNewsRecords(),
-  ]);
-}
+  // await Promise.all([
+  //   alphavProcessor.processArticles(),
+  //   newsProcessor.processArticles(),
+  //   newsProcessor.processArticles(),
+  // ]);
 
-function printStats(source: string, data: any) {
-  console.log(source, Object.keys(data), `Count: ${data.count}`);
+  // await Promise.all([
+  //   alphavProcessor.uploadNewsRecords(),
+  //   marketauxProcessor.uploadNewsRecords(),
+  //   newsProcessor.uploadNewsRecords(),
+  // ]);
 }
 
 main();
