@@ -48,9 +48,16 @@ export class EquestApi {
   setTimer() {
     this.startTime = Date.now();
   }
-  printTimer(source: string, count: number, ticker: string) {
+  printTimer(
+    source: string,
+    message: string,
+    count: number,
+    articlesCount: string
+  ) {
     let timeTaken = Date.now() - this.startTime;
-    console.log(`${source} => ${ticker} => ${count}  ...${timeTaken} ms`);
+    console.log(
+      `${source} => ${message} => ${count} ${articlesCount} ...${timeTaken}ms`
+    );
   }
 
   // Get news
@@ -62,7 +69,6 @@ export class EquestApi {
       params: { ticker },
     });
 
-    this.printTimer(endpointName, data.count, data.ticker);
     return data;
   }
 }

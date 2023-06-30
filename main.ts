@@ -1,8 +1,6 @@
-import { NEWS_DATA } from "./utils/data";
 import { NewsProcessor } from "./news-processor.class";
 import { EquestApi } from "./equest.class";
-import { endpoint } from "./equest.class";
-
+import { NEWS_DATA } from "./utils/data";
 async function main() {
   const encryptionKey = "secret";
 
@@ -17,7 +15,11 @@ async function main() {
 
   const newsProcessor = new NewsProcessor(
     equestApi,
-    { alpahvResponse, marketauxResponse, newsResponse },
+    {
+      alpahvResponse: NEWS_DATA,
+      marketauxResponse: NEWS_DATA,
+      newsResponse: NEWS_DATA,
+    },
     encryptionKey
   );
   await newsProcessor.processArticles();

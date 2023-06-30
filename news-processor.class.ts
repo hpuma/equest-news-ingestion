@@ -6,40 +6,40 @@ type Source = {
 };
 
 export class NewsProcessor {
-  equestApi: EquestApi;
-  encryptor: Encryptor;
+  private equestApi: EquestApi;
+  private encryptor: Encryptor;
 
-  source: Source;
-  newArticles: any[] = [];
+  private newsSources: Source;
+  private newArticles: any[] = [];
+  private processedCount = 0;
+
   private startTime: any;
 
   constructor(equestApi: EquestApi, data: any, encryptionKey: string) {
-    this.source = {
+    this.newsSources = {
       alphav: data.alpahvResponse,
       marketaux: data.marketauxResponse,
       news: data.newsResponse,
     };
+
     this.equestApi = equestApi;
     this.encryptor = new Encryptor(encryptionKey);
     this.newArticles = [];
   }
   async processArticles() {
-    const allSources = Object.keys(this.source);
-    const processedArticles: any[] = [];
-    allSources.forEach((source) => {
-      processedArticles.push(this.processArticlesBySource(source));
+    const allNewsSources = Object.keys(this.newsSources);
+
+    allNewsSources.forEach(async (source) => {
+      await this.processArticlesBySource(source);
     });
-    await Promise.all(processedArticles);
+
+    console.log(`PROCESSED ${this.newArticles.length} articles`);
   }
 
   async processArticlesBySource(source: string) {
     this.startTimer();
-    const dataSource = this.source[source];
-
-    if (!dataSource.articles.length) {
-      console.log("Articles PROCESSED: 0");
-      return;
-    }
+    this.processedCount = 0;
+    const dataSource = this.newsSources[source];
 
     const { articles, ticker } = dataSource;
 
@@ -48,15 +48,18 @@ export class NewsProcessor {
       const createdHash = this.encryptor.encrypt(filteredText);
       const { data } = await this.equestApi.getNewsRecordByHash(createdHash);
 
-      if (!data)
+      if (!data) {
         this.newArticles.push({
           ...article,
           hash: createdHash,
           timestamp: undefined,
           ticker,
         });
+        this.processedCount += 1;
+      }
     }
-    this.printTimer(source, `${ticker} PROCESSED`, this.newArticles.length);
+
+    this.printTimer(source, `${ticker} PROCESSED`, this.processedCount);
   }
 
   startTimer() {
@@ -64,7 +67,7 @@ export class NewsProcessor {
   }
   printTimer(source: string = "", message: string = "", count: number = 0) {
     let timeTaken = Date.now() - this.startTime;
-    console.log(`${source} => ${message} => ${count}  ...${timeTaken} ms`);
+    console.log(`🚀 ${source} => ${message} => ${count}  ...${timeTaken}ms`);
   }
 
   async uploadNewsRecords() {
