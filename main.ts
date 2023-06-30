@@ -18,9 +18,33 @@ async function main() {
   printStats("marketaux", marketauxResponse);
   printStats("news", newsResponse);
 
-  // const newsProcessor = new NewsProcessor(equestApi, NEWS_DATA, encryptionKey);
-  // await newsProcessor.processArticles();
-  // await newsProcessor.uploadNewsRecords();
+  const alphavProcessor = new NewsProcessor(
+    equestApi,
+    alpahvResponse,
+    encryptionKey
+  );
+  const marketauxProcessor = new NewsProcessor(
+    equestApi,
+    marketauxResponse,
+    encryptionKey
+  );
+  const newsProcessor = new NewsProcessor(
+    equestApi,
+    newsResponse,
+    encryptionKey
+  );
+
+  await Promise.all([
+    alphavProcessor.processArticles(),
+    newsProcessor.processArticles(),
+    newsProcessor.processArticles(),
+  ]);
+
+  await Promise.all([
+    alphavProcessor.uploadNewsRecords(),
+    marketauxProcessor.uploadNewsRecords(),
+    newsProcessor.uploadNewsRecords(),
+  ]);
 }
 
 function printStats(source: string, data: any) {
