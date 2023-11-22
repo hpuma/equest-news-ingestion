@@ -32,11 +32,22 @@ export class EquestApi {
       },
     });
   }
+  // Get news
+  async getNewsFromSource(endpointName: string, ticker: string) {
+    this.setTimer();
+    const endpointPath = endpoint[endpointName];
 
+    const { data } = await this.axiosInstance.get(endpointPath, {
+      params: { ticker },
+    });
+
+    return data;
+  }
   // Search recprd by hash and upload records
   async getNewsRecordByHash(hash: string) {
     return await this.axiosInstance.get(`${endpoint.newsRecord}/${hash}`);
   }
+
   async uploadNewsRecords(newsRecords: any) {
     return await this.axiosInstance.post(
       `${endpoint.newsRecordUpload}/`,
@@ -58,17 +69,5 @@ export class EquestApi {
     console.log(
       `${source} => ${message} => ${count} ${articlesCount} ...${timeTaken}ms`
     );
-  }
-
-  // Get news
-  async getNewsFromSource(endpointName: string, ticker: string) {
-    this.setTimer();
-    const endpointPath = endpoint[endpointName];
-
-    const { data } = await this.axiosInstance.get(endpointPath, {
-      params: { ticker },
-    });
-
-    return data;
   }
 }

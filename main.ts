@@ -1,6 +1,6 @@
 import { NewsProcessor } from "./news-processor.class";
 import { EquestApi } from "./equest.class";
-import { NEWS_DATA } from "./utils/data";
+
 async function main() {
   const encryptionKey = "secret";
 
