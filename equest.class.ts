@@ -1,8 +1,7 @@
 import Axios, { AxiosInstance } from "axios";
 import * as env from "dotenv";
 
-const envObject = env.config().parsed as any;
-const { EQUEST_API_KEY } = envObject;
+const { EQUEST_API_KEY } = env.config().parsed as any;
 type Endpoint = {
   [key: string]: string;
 };
@@ -12,6 +11,7 @@ export const endpoint: Endpoint = {
   news: "news/everything",
   newsRecord: "equest/news-record",
   newsRecordUpload: "equest/news-record/upload",
+  tickerRecord: "equest/ticker-records",
 };
 
 export class EquestApi {
@@ -32,9 +32,14 @@ export class EquestApi {
       },
     });
   }
+  async getTickerRecords() {
+    const endpointPath = endpoint["tickerRecord"];
+    const { data } = await this.axiosInstance.get(endpointPath);
+    return data;
+  }
+
   // Get news
   async getNewsFromSource(endpointName: string, ticker: string) {
-    this.setTimer();
     const endpointPath = endpoint[endpointName];
 
     const { data } = await this.axiosInstance.get(endpointPath, {
@@ -43,7 +48,7 @@ export class EquestApi {
 
     return data;
   }
-  // Search recprd by hash and upload records
+  // Search record by hash and upload records
   async getNewsRecordByHash(hash: string) {
     return await this.axiosInstance.get(`${endpoint.newsRecord}/${hash}`);
   }
