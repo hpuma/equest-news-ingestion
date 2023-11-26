@@ -59,20 +59,4 @@ export class EquestApi {
       newsRecords
     );
   }
-
-  // Use timer
-  setTimer() {
-    this.startTime = Date.now();
-  }
-  printTimer(
-    source: string,
-    message: string,
-    count: number,
-    articlesCount: string
-  ) {
-    let timeTaken = Date.now() - this.startTime;
-    console.log(
-      `${source} => ${message} => ${count} ${articlesCount} ...${timeTaken}ms`
-    );
-  }
 }
