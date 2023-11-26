@@ -1,13 +1,6 @@
 import { NewsProcessor } from "./news-processor.class";
 import { EquestApi } from "./equest.class";
 
-interface TickerRecord {
-  symbol: string;
-  name: string;
-  sector: string;
-  country: string;
-}
-
 async function main() {
   const encryptionKey = "secret";
   const equestApi = new EquestApi();
