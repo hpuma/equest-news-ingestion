@@ -12,7 +12,6 @@ export class NewsProcessor extends Timer {
 
   private newsSources: Source;
   private newArticles: any[] = [];
-  private totalProcessed = 0;
 
   constructor(equestApi: EquestApi, data: any, encryptionKey: string) {
     super();
@@ -35,21 +34,21 @@ export class NewsProcessor extends Timer {
   async processArticlesBySource(newsSource: string) {
     const data = this.newsSources[newsSource];
 
-    for await (const source of data) {
-      this.startTimer();
-      let currentProcessed = 0;
-      const { articles = [], ticker = "" } = source;
-
-      if (!articles.length) {
+    for await (const { articles = [], ticker = "", count } of data) {
+      if (!count) {
         this.printTimer(newsSource, `${ticker} [EMPTY]`, 0);
         continue;
       }
+
+      this.startTimer();
+      let articlesProcessed = 0;
 
       for (const article of articles) {
         const filteredText = article.title.replace(" ", "");
         const hash = this.encryptor.encrypt(filteredText);
 
         const { data } = await this.equestApi.getNewsRecordByHash(hash);
+
         if (data) continue;
 
         this.newArticles.push({
@@ -59,11 +58,10 @@ export class NewsProcessor extends Timer {
           ticker,
           newsSource,
         });
-        this.totalProcessed += 1;
-        currentProcessed += 1;
+        articlesProcessed += 1;
       }
 
-      this.printTimer(newsSource, `${ticker} PROCESSED`, currentProcessed);
+      this.printTimer(newsSource, `${ticker} PROCESSED`, articlesProcessed);
     }
   }
 

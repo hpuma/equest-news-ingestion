@@ -23,9 +23,11 @@ async function main() {
     if (!marketauxRes.message) marketaux.push(marketauxRes);
     if (!newsRes.message) news.push(newsRes);
   }
-  const totalArticlesDownloaded =
-    alphav.length ?? 0 + marketaux.length ?? 0 + news.length ?? 0;
-  console.log("🚀 TotalArticles => DOWNLOADED =>", totalArticlesDownloaded);
+
+  console.log(
+    "🚀 TotalArticles => DOWNLOADED =>",
+    alphav.length + marketaux.length + news.length
+  );
 
   const newsProcessor = new NewsProcessor(
     equestApi,
