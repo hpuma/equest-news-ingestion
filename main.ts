@@ -6,7 +6,7 @@ async function main() {
   const equestApi = new EquestApi();
 
   const { records, count } = await equestApi.getTickerRecords();
-  console.log("🚀 TickerRecords => COUNT =>", count);
+  console.log("🚀 Ticker => COUNT =>", count);
 
   const alphav: any[] = [];
   const marketaux: any[] = [];
@@ -23,11 +23,6 @@ async function main() {
     if (!marketauxRes.message) marketaux.push(marketauxRes);
     if (!newsRes.message) news.push(newsRes);
   }
-
-  console.log(
-    "🚀 TotalArticles => DOWNLOADED =>",
-    alphav.length + marketaux.length + news.length
-  );
 
   const newsProcessor = new NewsProcessor(
     equestApi,
