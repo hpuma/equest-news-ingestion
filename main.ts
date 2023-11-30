@@ -1,4 +1,4 @@
-import { NewsProcessor } from "./news-processor.class";
+import { NewsProcessor } from "./newsprocessor/news-processor.class";
 import { EquestApi } from "./equest.class";
 
 async function main() {

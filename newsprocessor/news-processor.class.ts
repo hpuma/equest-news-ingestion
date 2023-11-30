@@ -1,6 +1,6 @@
-import { EquestApi } from "./equest.class";
-import { Encryptor } from "./utils/encryptor.class";
-import { Timer } from "./utils/timer.class";
+import { EquestApi } from "../equest.class";
+import { Timer } from "../utils/timer.class";
+import { Helper } from "./helper.class";
 
 type Source = {
   [key: string]: any[any];
@@ -8,7 +8,7 @@ type Source = {
 
 export class NewsProcessor extends Timer {
   private equestApi: EquestApi;
-  private encryptor: Encryptor;
+  private helper: Helper;
 
   private newsSources: Source;
   private newArticles: any[] = [];
@@ -21,7 +21,7 @@ export class NewsProcessor extends Timer {
       news: data.news,
     };
     this.equestApi = equestApi;
-    this.encryptor = new Encryptor(encryptionKey);
+    this.helper = new Helper(encryptionKey);
     this.newArticles = [];
   }
   async processArticles() {
@@ -36,6 +36,7 @@ export class NewsProcessor extends Timer {
     const data = this.newsSources[newsSource].filter(
       (data: any) => data.count > 0
     );
+
     if (!data.length) return;
 
     for await (const {
@@ -43,10 +44,11 @@ export class NewsProcessor extends Timer {
       ticker = "",
       count: articleCount,
     } of data) {
-      this.startTimer(newsSource, `ARTICLES ADDED ✅ => ${ticker}`);
+      this.startTimer(newsSource, `TOTAL PROCESSED✅ => ${ticker}`);
       const articlesWithHash = articles.map((article: any) =>
-        this.genereateHashFromTitle(article, ticker, newsSource)
+        this.helper.genereateHashFromTitle(article, ticker, newsSource)
       );
+
       const hashList = articlesWithHash.map((article: any) => article.hash);
 
       const { duplicates, count: duplicateCount } =
@@ -57,11 +59,12 @@ export class NewsProcessor extends Timer {
         continue;
       }
 
-      const { newArticles = [], consoleMessage } = this.removeDuplicatedRecords(
-        articlesWithHash,
-        duplicates,
-        duplicateCount
-      );
+      const { newArticles = [], consoleMessage } =
+        this.helper.removeDuplicatedRecords(
+          articlesWithHash,
+          duplicates,
+          duplicateCount
+        );
 
       console.log(
         `🚀 ${newsSource} => ${consoleMessage} => ${ticker} => ${duplicateCount}`
@@ -70,39 +73,6 @@ export class NewsProcessor extends Timer {
       this.newArticles = [...this.newArticles, ...newArticles];
       this.printTimer(newArticles.length);
     }
-  }
-
-  private genereateHashFromTitle(
-    article: any,
-    ticker: string,
-    newsSource: string
-  ) {
-    const { title = "" } = article;
-
-    return {
-      ...article,
-      hash: this.encryptor.encrypt(title.replace(" ", "")),
-      ticker,
-      newsSource,
-    };
-  }
-
-  private removeDuplicatedRecords(
-    articlesWithHash: any[],
-    duplicates: any[],
-    duplicateCount: number
-  ): { newArticles: any[]; consoleMessage: string } {
-    const hasDuplicates = duplicateCount > 0;
-    const consoleMessage = hasDuplicates ? "DUPLICATES" : "NO DUPLICATES";
-
-    return {
-      newArticles: hasDuplicates
-        ? articlesWithHash.filter(
-            (article: any) => !duplicates.includes(article.hash)
-          )
-        : articlesWithHash,
-      consoleMessage,
-    };
   }
 
   async uploadNewsRecords() {
