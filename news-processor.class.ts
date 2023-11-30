@@ -29,58 +29,79 @@ export class NewsProcessor extends Timer {
     const allNewsSources = Object.keys(this.newsSources);
     for await (const source of allNewsSources)
       await this.processArticlesBySource(source);
+    this.printTimer("Processing", `DONE`, this.newArticles.length, true);
   }
 
   async processArticlesBySource(newsSource: string) {
     const data = this.newsSources[newsSource];
 
-    for await (const { articles = [], ticker = "", count } of data) {
-      if (!count) {
-        this.printTimer(newsSource, `${ticker} [EMPTY]`, 0);
-        continue;
-      }
-
+    for await (const {
+      articles = [],
+      ticker = "",
+      count: articleCount,
+    } of data) {
       this.startTimer();
-      let articlesProcessed = 0;
+      if (!articleCount)
+        return this.printTimer(newsSource, `${ticker} [EMPTY]`, 0);
 
-      for (const article of articles) {
-        const filteredText = article.title.replace(" ", "");
-        const hash = this.encryptor.encrypt(filteredText);
+      const articlesWithHash = articles.map((article: any) =>
+        this.genereateHashFromTitle(article, ticker, newsSource)
+      );
+      const hashList = articlesWithHash.map((article: any) => article.hash);
+      const articlesAddedMsg = `ARTICLES ADDED ✅ => ${ticker}`;
 
-        const { data } = await this.equestApi.getNewsRecordByHash(hash);
+      const { duplicates, count: duplicateCount } =
+        await this.equestApi.getDuplicateNewsrecords(hashList);
 
-        if (data) continue;
+      if (duplicateCount === articleCount)
+        return this.printTimer(newsSource, articlesAddedMsg, 0);
 
-        this.newArticles.push({
-          ...article,
-          hash,
-          timestamp: undefined,
-          ticker,
-          newsSource,
-        });
-        articlesProcessed += 1;
+      let newArticlesRecords = [];
+      const hasDuplicates = duplicateCount > 0;
+      const consoleMessage = hasDuplicates ? "DUPLICATES" : "NO DUPLICATES";
+
+      if (duplicateCount === 0) {
+        newArticlesRecords = articlesWithHash;
+      } else if (hasDuplicates) {
+        newArticlesRecords = articlesWithHash.filter(
+          (article: any) => !duplicates.includes(article.hash)
+        );
       }
 
-      this.printTimer(newsSource, `${ticker} PROCESSED`, articlesProcessed);
+      console.log(
+        `🚀 ${newsSource} => ${consoleMessage} => ${ticker} => ${duplicateCount}`
+      );
+      this.newArticles = [...this.newArticles, ...newArticlesRecords];
+      this.printTimer(newsSource, articlesAddedMsg, newArticlesRecords.length);
     }
+  }
+
+  genereateHashFromTitle(article: any, ticker: string, newsSource: string) {
+    const { title = "" } = article;
+
+    return {
+      ...article,
+      hash: this.encryptor.encrypt(title.replace(" ", "")),
+      ticker,
+      newsSource,
+    };
   }
 
   async uploadNewsRecords() {
     this.startTimer();
 
     if (!this.newArticles.length)
-      return this.printTimer("TotalArticles", "UPLOADED", 0);
+      return this.printTimer("Total Articles", "UPLOADED", 0);
 
     const payload = {
       articles: this.newArticles,
       count: this.newArticles.length,
     };
 
-    const {
-      data: { insertedCount = 0 },
-    } = await this.equestApi.uploadNewsRecords(payload);
+    const { insertedCount = 0 } = await this.equestApi.uploadNewsRecords(
+      payload
+    );
 
-    this.printTimer("TotalArticles", "UPLOADED", insertedCount);
-    this.newArticles = [];
+    this.printTimer("Total Articles", "UPLOADED", insertedCount);
   }
 }

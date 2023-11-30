@@ -11,6 +11,7 @@ export const endpoint: Endpoint = {
   news: "news/everything",
   newsRecord: "equest/news-record",
   newsRecordUpload: "equest/news-record/upload",
+  newsRecordDuplicates: "equest/news-record/duplicates",
   tickerRecord: "equest/ticker-records",
 };
 
@@ -18,7 +19,6 @@ export class EquestApi {
   private baseURL: string;
   private apiKey: string = EQUEST_API_KEY;
   private axiosInstance: AxiosInstance;
-  private startTime: any;
 
   constructor() {
     console.log("✅ EquestApi READY");
@@ -49,14 +49,21 @@ export class EquestApi {
     return data;
   }
   // Search record by hash and upload records
-  async getNewsRecordByHash(hash: string) {
-    return await this.axiosInstance.get(`${endpoint.newsRecord}/${hash}`);
+  async getDuplicateNewsrecords(hashes: string[]) {
+    const requestBody = { hashes };
+    const { data } = await this.axiosInstance.post(
+      endpoint.newsRecordDuplicates,
+      requestBody
+    );
+
+    return data;
   }
 
   async uploadNewsRecords(newsRecords: any) {
-    return await this.axiosInstance.post(
-      `${endpoint.newsRecordUpload}/`,
+    const { data } = await this.axiosInstance.post(
+      endpoint.newsRecordUpload,
       newsRecords
     );
+    return data;
   }
 }
