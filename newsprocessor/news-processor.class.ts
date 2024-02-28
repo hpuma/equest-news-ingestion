@@ -3,7 +3,7 @@ import { Timer } from "../utils/timer.class";
 import { Helper } from "./helper.class";
 
 type Source = {
-  [key: string]: any[any];
+  [key: string]: any[];
 };
 
 export class NewsProcessor extends Timer {
@@ -19,6 +19,10 @@ export class NewsProcessor extends Timer {
       alphav: data.alphav,
       marketaux: data.marketaux,
       news: data.news,
+      bing: data.bing,
+      newsdata: data.newsdata,
+      gnews: data.gnews,
+      thenews: data.thenews,
     };
     this.equestApi = equestApi;
     this.helper = new Helper(encryptionKey);
@@ -33,9 +37,8 @@ export class NewsProcessor extends Timer {
   }
 
   async processArticlesBySource(newsSource: string) {
-    const data = this.newsSources[newsSource].filter(
-      (data: any) => data.count > 0
-    );
+    const data =
+      this.newsSources[newsSource]?.filter((data: any) => data.count > 0) ?? [];
 
     if (!data.length) return;
 

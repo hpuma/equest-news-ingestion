@@ -1,6 +1,10 @@
 import { NewsProcessor } from "./newsprocessor/news-processor.class";
 import { EquestApi } from "./equest.class";
 
+interface Results {
+  [key: string]: any[]; // Define an index signature to specify that the keys are strings and the values are arrays of any type
+}
+
 async function main() {
   const encryptionKey = "secret";
   const equestApi = new EquestApi();
@@ -8,32 +12,33 @@ async function main() {
   const { records, count } = await equestApi.getTickerRecords();
   console.log("🚀 Ticker => COUNT =>", count);
 
-  const alphav: any[] = [];
-  const marketaux: any[] = [];
-  const news: any[] = [];
+  const integrations = [
+    "alphav",
+    "marketaux",
+    "news",
+    "bing",
+    "newsdata",
+    "gnews",
+    "thenews",
+  ];
+  const results: Results = {}; // Specify the type of the results object
 
   for await (const record of records) {
     const { symbol: ticker } = record;
-    const [alphavRes, marketauxRes, newsRes] = await Promise.all([
-      equestApi.getNewsFromSource("alphav", ticker),
-      equestApi.getNewsFromSource("marketaux", ticker),
-      equestApi.getNewsFromSource("news", ticker),
-    ]);
-    if (!alphavRes.message) alphav.push(alphavRes);
-    if (!marketauxRes.message) marketaux.push(marketauxRes);
-    if (!newsRes.message) news.push(newsRes);
+    const requests = integrations.map((integration) =>
+      equestApi.getNewsFromSource(integration, ticker)
+    );
+
+    const responses = await Promise.all(requests);
+    responses.forEach((res, index) => {
+      if (!res.message) {
+        results[integrations[index]] = results[integrations[index]] || [];
+        results[integrations[index]].push(res);
+      }
+    });
   }
 
-  const newsProcessor = new NewsProcessor(
-    equestApi,
-    {
-      alphav,
-      marketaux,
-      news,
-    },
-    encryptionKey
-  );
-
+  const newsProcessor = new NewsProcessor(equestApi, results, encryptionKey);
   await newsProcessor.processArticles();
   await newsProcessor.uploadNewsRecords();
 }
