@@ -9,21 +9,12 @@ type Source = {
 export class NewsProcessor extends Timer {
   private equestApi: EquestApi;
   private helper: Helper;
-
   private newsSources: Source;
   private newArticles: any[] = [];
 
   constructor(equestApi: EquestApi, data: any, encryptionKey: string) {
     super();
-    this.newsSources = {
-      alphav: data.alphav,
-      marketaux: data.marketaux,
-      news: data.news,
-      bing: data.bing,
-      newsdata: data.newsdata,
-      gnews: data.gnews,
-      thenews: data.thenews,
-    };
+    this.newsSources = data;
     this.equestApi = equestApi;
     this.helper = new Helper(encryptionKey);
     this.newArticles = [];

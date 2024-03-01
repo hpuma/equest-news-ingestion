@@ -23,13 +23,12 @@ async function main() {
   ];
   const results: Results = {}; // Specify the type of the results object
 
-  for await (const record of records) {
-    const { symbol: ticker } = record;
+  for await (const { symbol: ticker } of records) {
     const requests = integrations.map((integration) =>
       equestApi.getNewsFromSource(integration, ticker)
     );
-
     const responses = await Promise.all(requests);
+
     responses.forEach((res, index) => {
       if (!res.message) {
         results[integrations[index]] = results[integrations[index]] || [];
