@@ -1,11 +1,8 @@
 export class Timer {
   private startTime: any;
   private globalStartTime: any;
-
   private source: string = "";
   private printMessage: string = "";
-
-  constructor() {}
 
   startTimer(source: string, printMessage: string, isGlobal = false) {
     this.source = source;

@@ -1,5 +1,5 @@
-import { EquestApi } from "../../equest-api.class";
-import { Encryptor } from "../../encryptor.class";
+import { EquestApi } from "../equest.class.ts";
+import { Encryptor } from "./encryptor.class.ts";
 
 async function main() {
   const equestApi = new EquestApi();
@@ -7,16 +7,14 @@ async function main() {
   const encryptor = new Encryptor(encryptionKey);
 
   // TEST EQUEST
-  let newRecordByHash = await equestApi.getNewsRecordByHash("testhash123");
-  console.log("findNewsRecordByHash", newRecordByHash.data);
 
-  const alphavNews = await equestApi.getAlphavNews("ibm");
+  const alphavNews = await equestApi.getNewsFromSource("alphav", "ibm");
   console.log("getAlphavNews", alphavNews.data);
 
-  const marketauxNews = await equestApi.getMarketauxNews("ibm");
+  const marketauxNews = await equestApi.getNewsFromSource("marketaux", "ibm");
   console.log("getMarketauxNews", marketauxNews.data);
 
-  const everythingNews = await equestApi.getNewsEverything("ibm");
+  const everythingNews = await equestApi.getNewsFromSource("news", "ibm");
   console.log("getNewsEverything", everythingNews.data);
 
   // TEST ENCRYPTOR
