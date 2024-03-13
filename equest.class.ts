@@ -1,7 +1,7 @@
 import Axios, { AxiosInstance } from "axios";
-import * as env from "dotenv";
+import { config } from "./utils/config";
 
-const { EQUEST_API_KEY } = env.config().parsed as any;
+const { EQUEST_API_KEY } = config;
 type Endpoint = {
   [key: string]: string;
 };
@@ -21,20 +21,19 @@ export const endpoint: Endpoint = {
 
 export class EquestApi {
   private baseURL: string;
-  private apiKey: string = EQUEST_API_KEY;
   private axiosInstance: AxiosInstance;
 
   constructor() {
-    console.log("✅ EquestApi READY");
     this.baseURL = "http://localhost:3001/";
     this.axiosInstance = Axios.create({
       baseURL: this.baseURL,
       headers: {
         common: {
-          "x-api-key": this.apiKey,
+          "x-api-key": EQUEST_API_KEY,
         },
       },
     });
+    console.log("✅ EquestApi READY");
   }
   async getTickerRecords() {
     const endpointPath = endpoint["tickerRecord"];
@@ -43,13 +42,12 @@ export class EquestApi {
   }
 
   // Get news
-  async getNewsFromSource(endpointName: string, ticker: string) {
-    const endpointPath = endpoint[endpointName];
+  async getNewsFromSource(source: string, ticker: string) {
+    const endpointPath = endpoint[source];
 
     const { data } = await this.axiosInstance.get(endpointPath, {
       params: { ticker },
     });
-
     return data;
   }
   // Search record by hash and upload records
@@ -59,7 +57,6 @@ export class EquestApi {
       endpoint.newsRecordDuplicates,
       requestBody
     );
-
     return data;
   }
 

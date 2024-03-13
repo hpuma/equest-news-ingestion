@@ -1,12 +1,12 @@
 import { NewsProcessor } from "./newsprocessor/news-processor.class";
 import { EquestApi } from "./equest.class";
+import { config } from "./utils/config";
 
 interface Results {
   [key: string]: any[]; // Define an index signature to specify that the keys are strings and the values are arrays of any type
 }
-
+const { ENCRYPTION_KEY } = config;
 async function main() {
-  const encryptionKey = "secret";
   const equestApi = new EquestApi();
 
   const { records, count } = await equestApi.getTickerRecords();
@@ -37,7 +37,7 @@ async function main() {
     });
   }
 
-  const newsProcessor = new NewsProcessor(equestApi, results, encryptionKey);
+  const newsProcessor = new NewsProcessor(equestApi, results, ENCRYPTION_KEY);
   await newsProcessor.processArticles();
   await newsProcessor.uploadNewsRecords();
 }

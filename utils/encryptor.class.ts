@@ -1,12 +1,13 @@
 import crypto from "crypto";
+import { config } from "./config";
 
+const { ENCRYPTION_SALT } = config;
 // @Source: https://stackoverflow.com/a/66476430/10458125
-
 export class Encryptor {
   algorithm: string = "aes-192-cbc";
   key: Buffer;
   constructor(encryptionKey: string) {
-    this.key = crypto.scryptSync(encryptionKey, "salt", 24);
+    this.key = crypto.scryptSync(encryptionKey, ENCRYPTION_SALT, 24);
   }
   encrypt(clearText: string) {
     const iv = "1234567891011234";
