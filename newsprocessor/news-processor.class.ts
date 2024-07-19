@@ -20,11 +20,9 @@ export class NewsProcessor extends Timer {
     this.newArticles = [];
   }
   async processArticles() {
-    this.startTimer("Processing", "DONE", true);
     const allNewsSources = Object.keys(this.newsSources);
     for await (const source of allNewsSources)
       await this.processArticlesBySource(source);
-    this.printTimer(this.newArticles.length, true);
   }
 
   async processArticlesBySource(newsSource: string) {
@@ -38,7 +36,7 @@ export class NewsProcessor extends Timer {
       ticker = "",
       count: articleCount,
     } of data) {
-      this.startTimer(newsSource, `TOTAL PROCESSED✅ => ${ticker}`);
+      this.startTimer(newsSource);
       const articlesWithHash = articles.map((article: any) =>
         this.helper.genereateHashFromTitle(article, ticker, newsSource)
       );
@@ -53,7 +51,7 @@ export class NewsProcessor extends Timer {
         continue;
       }
 
-      const { newArticles = [], consoleMessage } =
+      const { newArticles = [], consoleMessage = "" } =
         this.helper.removeDuplicatedRecords(
           articlesWithHash,
           duplicates,
@@ -65,12 +63,12 @@ export class NewsProcessor extends Timer {
       );
 
       this.newArticles = [...this.newArticles, ...newArticles];
-      this.printTimer(newArticles.length);
+      this.printTimer(newArticles.length, `TOTAL_PROCESSED✅ => ${ticker}`);
     }
   }
 
   async uploadNewsRecords() {
-    this.startTimer("Total Articles", "UPLOADED");
+    this.startTimer("TOTAL_ARTICLES");
 
     if (!this.newArticles.length) return this.printTimer(0);
 
@@ -83,6 +81,6 @@ export class NewsProcessor extends Timer {
       payload
     );
 
-    return this.printTimer(insertedCount);
+    this.printTimer(insertedCount, "UPLOADED");
   }
 }
